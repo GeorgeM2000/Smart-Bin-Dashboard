@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Smart Bin Dashboard</string>
+    <string name="signuphere">Create a new account? Sign Up</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="signup">Sign Up</string>
+    <string name="email">Email</string>
+    <string name="fullname">Full Name</string>
+    <string name="loginhere">Already have an account? Log In</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoiZ2VvcmdlbTIwMDAiLCJhIjoiY2wwb2J2bWp2MGdjNDNpcGt4NGJmZXBpZiJ9.P74ZJhBAzDTQVQGo6-Joiw</string>
+
+</resources>
