@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
             SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss", Locale.getDefault());
             try {
                 Date storedTime = timeFormat.parse(sp.getString("Time", ""));
-                differenceInHours = TimeUnit.MILLISECONDS.toHours(currentTime.getTime() - storedTime.getTime()) %60;
+                differenceInHours = TimeUnit.MILLISECONDS.toHours(currentTime.getTime() - storedTime.getTime()) % 60;
             } catch (ParseException e) {
                 e.printStackTrace();
             }

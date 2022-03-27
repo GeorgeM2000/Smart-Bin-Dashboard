@@ -271,13 +271,14 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 getData();
+                                dialogInterface.cancel();
                             }
                         });
 
                         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                finish();
+                                dialogInterface.cancel();
                             }
                         });
 
@@ -406,7 +407,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
                 builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        finish();
+                        dialogInterface.cancel();
                     }
                 });
 
