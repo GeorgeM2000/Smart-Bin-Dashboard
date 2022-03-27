@@ -191,7 +191,6 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
         mapView = (MapView) findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-        // Fuck off
 
         routePreferences = getSharedPreferences("routeData",Context.MODE_PRIVATE);
         Date currentTime = Calendar.getInstance().getTime();
