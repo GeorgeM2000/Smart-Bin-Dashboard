@@ -117,7 +117,7 @@ public class Login extends AppCompatActivity {
     private void sendData(String email, String password) {
         // Initialize retrofit
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.2.56:3000/")
+                .baseUrl("http://192.168.2.7:3000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

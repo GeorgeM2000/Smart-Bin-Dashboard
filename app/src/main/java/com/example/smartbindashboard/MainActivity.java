@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         buttonSignUp = findViewById(R.id.signUp);
         sp = getSharedPreferences("userPreferences", Context.MODE_PRIVATE);
         Date currentTime = Calendar.getInstance().getTime();
-        long differenceInHours = 0;
+        long differenceInMinutes = 0;
 
 
         // If the user has already logged in
@@ -42,12 +42,12 @@ public class MainActivity extends AppCompatActivity {
             SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss", Locale.getDefault());
             try {
                 Date storedTime = timeFormat.parse(sp.getString("Time", ""));
-                differenceInHours = TimeUnit.MILLISECONDS.toHours(currentTime.getTime() - storedTime.getTime()) % 60;
+                differenceInMinutes = TimeUnit.MILLISECONDS.toMinutes(currentTime.getTime() - storedTime.getTime()) % 60;
             } catch (ParseException e) {
                 e.printStackTrace();
             }
 
-            if(differenceInHours > 5) {
+            if(differenceInMinutes > 50) {
                 SharedPreferences.Editor editor = sp.edit();
                 editor.putBoolean("LoggedIn", false);
             } else {

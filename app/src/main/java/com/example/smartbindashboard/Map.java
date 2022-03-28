@@ -377,7 +377,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
                 NavigationLauncherOptions options = NavigationLauncherOptions.builder()
                         .directionsRoute(currentRoute)
                         .waynameChipEnabled(true)
-                        .shouldSimulateRoute(true)
+                        .shouldSimulateRoute(false)
                         .build();
 
                 NavigationLauncher.startNavigation(Map.this, options);
