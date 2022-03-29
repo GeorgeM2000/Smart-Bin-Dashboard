@@ -214,7 +214,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
                 e.printStackTrace();
             }
 
-            if(timeDifference > 1 || !routePreferences.getString("Date", "").equals(LocalDate.now().toString())) {
+            if(timeDifference > 10 || !routePreferences.getString("Date", "").equals(LocalDate.now().toString())) {
                 SharedPreferences.Editor editor = routePreferences.edit();
                 editor.putString("routes", "");
             }
@@ -602,7 +602,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     private void clearRubbishBinPoint() {
         // Initialize retrofit
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.2.56:3000/")
+                .baseUrl("http://192.168.2.7:3000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -655,7 +655,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     private void getData() {
         // Initialize retrofit
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.2.56:3000/")
+                .baseUrl("http://192.168.2.7:3000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

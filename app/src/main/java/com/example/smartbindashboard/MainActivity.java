@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // If one hour has passed since user's last log in or the log in date is not the same as the current date
-            if(timeDifference > 1 || !sp.getString("Date", "").equals(LocalDate.now().toString())) {
+            if(timeDifference > 5 || !sp.getString("Date", "").equals(LocalDate.now().toString())) {
                 SharedPreferences.Editor editor = sp.edit();
                 editor.putBoolean("LoggedIn", false);
             } else {
