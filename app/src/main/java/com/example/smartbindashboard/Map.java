@@ -50,6 +50,8 @@ import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -191,24 +193,28 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
         mapView = (MapView) findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-
         routePreferences = getSharedPreferences("routeData",Context.MODE_PRIVATE);
-        Date currentTime = Calendar.getInstance().getTime();
-        long differenceInHours = 0;
 
         if(!routePreferences.getString("routes", "").equals("")) {
 
-            // If user has acquired route data before, get the hours since the last retrieval
-            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss", Locale.getDefault());
+            // If user has logged in before, get the hours since user's last log in
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+            long timeDifference = 0;
+
             try {
+                // Get the current time
+                Date currentTime = timeFormat.parse(LocalTime.now().toString());
+
+                // Get the stored time
                 Date storedTime = timeFormat.parse(routePreferences.getString("Time", ""));
-                differenceInHours = TimeUnit.MILLISECONDS.toHours(currentTime.getTime() - storedTime.getTime()) % 60;
+
+                // Calculate the time difference in hours
+                timeDifference = ((Math.abs(currentTime.getTime() - storedTime.getTime())) / (60 * 60 * 1000)) % 24;
             } catch (ParseException e) {
                 e.printStackTrace();
             }
 
-            // If the hours since the last retrieval exceed the 5 hour limit, delete route data
-            if(differenceInHours > 5) {
+            if(timeDifference > 1 || !routePreferences.getString("Date", "").equals(LocalDate.now().toString())) {
                 SharedPreferences.Editor editor = routePreferences.edit();
                 editor.putString("routes", "");
             }
@@ -449,10 +455,9 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     // Save the route data to the shared preferences
     private void saveData(ArrayList<Data> data) {
 
-        // Get current time
-        Date currentTime = Calendar.getInstance().getTime();
-        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss", Locale.getDefault());
-        String time = timeFormat.format(currentTime);
+        // Get current time and date
+        String currentTime = LocalTime.now().toString();
+        String currentDate = LocalDate.now().toString();
 
 
         SharedPreferences.Editor editor = routePreferences.edit();
@@ -462,7 +467,10 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
         String json = gson.toJson(data);
 
         editor.putString("routes", json);
-        editor.putString("Time", time);
+
+        // Store current time and date in shared preferences
+        editor.putString("Time", currentTime);
+        editor.putString("Date", currentDate);
         editor.commit();
     }
 

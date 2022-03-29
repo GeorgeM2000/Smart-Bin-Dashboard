@@ -22,6 +22,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -135,19 +137,20 @@ public class Login extends AppCompatActivity {
                     if(response.body().getState().equals("Success")) {
                         Toast.makeText(Login.this, "Login successful", Toast.LENGTH_SHORT).show();
 
-                        // Get current time
-                        Date currentTime = Calendar.getInstance().getTime();
-                        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss", Locale.getDefault());
-                        String time = timeFormat.format(currentTime);
+                        // Get current time and date
+                        String currentTime = LocalTime.now().toString();
+                        String currentDate = LocalDate.now().toString();
 
                         // If login is successful, change the login status
                         SharedPreferences sp = getApplicationContext().getSharedPreferences("userPreferences", Context.MODE_PRIVATE);Toast.makeText(Login.this, "Login successful.", Toast.LENGTH_SHORT).show();
                         SharedPreferences.Editor editor = sp.edit();
 
+                        // Set logged in status to true
                         editor.putBoolean("LoggedIn", true);
 
                         // Store current time in shared preferences
-                        editor.putString("Time", time);
+                        editor.putString("Time", currentTime);
+                        editor.putString("Date", currentDate);
                         editor.commit();
 
                         Intent intent = new Intent(Login.this, Dashboard.class);

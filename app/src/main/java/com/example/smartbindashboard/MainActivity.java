@@ -13,6 +13,8 @@ import android.widget.Button;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -31,23 +33,30 @@ public class MainActivity extends AppCompatActivity {
         buttonLogin = findViewById(R.id.login);
         buttonSignUp = findViewById(R.id.signUp);
         sp = getSharedPreferences("userPreferences", Context.MODE_PRIVATE);
-        Date currentTime = Calendar.getInstance().getTime();
-        long differenceInMinutes = 0;
 
 
         // If the user has already logged in
         if(sp.getBoolean("LoggedIn", false)) {
 
             // If user has logged in before, get the hours since user's last log in
-            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss", Locale.getDefault());
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+            long timeDifference = 0;
+
             try {
+                // Get the current time
+                Date currentTime = timeFormat.parse(LocalTime.now().toString());
+
+                // Get the stored time
                 Date storedTime = timeFormat.parse(sp.getString("Time", ""));
-                differenceInMinutes = TimeUnit.MILLISECONDS.toMinutes(currentTime.getTime() - storedTime.getTime()) % 60;
+
+                // Calculate the time difference in hours
+                timeDifference = ((Math.abs(currentTime.getTime() - storedTime.getTime())) / (60 * 60 * 1000)) % 24;
             } catch (ParseException e) {
                 e.printStackTrace();
             }
 
-            if(differenceInMinutes > 50) {
+            // If one hour has passed since user's last log in or the log in date is not the same as the current date
+            if(timeDifference > 1 || !sp.getString("Date", "").equals(LocalDate.now().toString())) {
                 SharedPreferences.Editor editor = sp.edit();
                 editor.putBoolean("LoggedIn", false);
             } else {
