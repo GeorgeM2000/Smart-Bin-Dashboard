@@ -6,6 +6,7 @@
         <entry key="..\:/Users/giorg/AndroidStudioProjects/SmartBinDashboard/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.2085" />
         <entry key="..\:/Users/giorg/AndroidStudioProjects/SmartBinDashboard/app/src/main/res/drawable/cut_card_background.xml" value="0.1915" />
         <entry key="..\:/Users/giorg/AndroidStudioProjects/SmartBinDashboard/app/src/main/res/drawable/ic_brush.xml" value="0.2115" />
+        <entry key="..\:/Users/giorg/AndroidStudioProjects/SmartBinDashboard/app/src/main/res/drawable/ic_cloud.xml" value="0.157" />
         <entry key="..\:/Users/giorg/AndroidStudioProjects/SmartBinDashboard/app/src/main/res/drawable/ic_devices.xml" value="0.1" />
         <entry key="..\:/Users/giorg/AndroidStudioProjects/SmartBinDashboard/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2085" />
         <entry key="..\:/Users/giorg/AndroidStudioProjects/SmartBinDashboard/app/src/main/res/drawable/ic_location.xml" value="0.194" />
@@ -15,7 +16,7 @@
         <entry key="..\:/Users/giorg/AndroidStudioProjects/SmartBinDashboard/app/src/main/res/layout/activity_map.xml" value="0.1" />
         <entry key="..\:/Users/giorg/AndroidStudioProjects/SmartBinDashboard/app/src/main/res/layout/activity_sign_up.xml" value="0.33" />
         <entry key="..\:/Users/giorg/AndroidStudioProjects/SmartBinDashboard/app/src/main/res/layout/main_function_bar.xml" value="0.20416666666666666" />
-        <entry key="..\:/Users/giorg/AndroidStudioProjects/SmartBinDashboard/app/src/main/res/layout/main_function_drawer.xml" value="0.1" />
+        <entry key="..\:/Users/giorg/AndroidStudioProjects/SmartBinDashboard/app/src/main/res/layout/main_function_drawer.xml" value="0.25" />
         <entry key="..\:/Users/giorg/AndroidStudioProjects/SmartBinDashboard/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1535" />
       </map>
     </option>

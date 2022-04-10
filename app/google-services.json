@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "783111362350",
+    "project_id": "smart-bin-4d5b9",
+    "storage_bucket": "smart-bin-4d5b9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:783111362350:android:2898e3d16a6d7d0f4dccbf",
+        "android_client_info": {
+          "package_name": "com.example.smartbindashboard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "783111362350-29bh53h2mbahka8fdpmdbhism6k29e78.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBp7RE-Fp3SsxQLv9DrN_Dr2sBpUy7g5Lo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "783111362350-29bh53h2mbahka8fdpmdbhism6k29e78.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

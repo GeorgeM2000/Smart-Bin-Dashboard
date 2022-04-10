@@ -81,7 +81,7 @@
 
 
     <LinearLayout
-        android:id="@+id/cloud"
+        android:id="@+id/optimal_path"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -98,7 +98,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Get Data"
+            android:text="Set Optimal Path"
             android:textColor="@color/black"
             android:padding="15dp"/>
 
@@ -198,7 +198,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Clear Point"
+            android:text="Remove Rubbish Bin"
             android:textColor="@color/black"
             android:padding="15dp"/>
 

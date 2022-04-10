@@ -6,24 +6,23 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
+
+
 
 public class MainActivity extends AppCompatActivity {
 
     Button buttonLogin, buttonSignUp;
-    SharedPreferences sp;
+    SharedPreferences userPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,11 +31,11 @@ public class MainActivity extends AppCompatActivity {
 
         buttonLogin = findViewById(R.id.login);
         buttonSignUp = findViewById(R.id.signUp);
-        sp = getSharedPreferences("userPreferences", Context.MODE_PRIVATE);
+        userPreferences = getSharedPreferences("User_Preferences", Context.MODE_PRIVATE);
 
 
         // If the user has already logged in
-        if(sp.getBoolean("LoggedIn", false)) {
+        if(userPreferences.getBoolean("Log_In_State", false)) {
 
             // If user has logged in before, get the hours since user's last log in
             SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
@@ -47,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
                 Date currentTime = timeFormat.parse(LocalTime.now().toString());
 
                 // Get the stored time
-                Date storedTime = timeFormat.parse(sp.getString("Time", ""));
+                Date storedTime = timeFormat.parse(userPreferences.getString("Log_In_Time", ""));
 
                 // Calculate the time difference in hours
                 timeDifference = ((Math.abs(currentTime.getTime() - storedTime.getTime())) / (60 * 60 * 1000)) % 24;
@@ -55,36 +54,29 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            // If one hour has passed since user's last log in or the log in date is not the same as the current date
-            if(timeDifference > 5 || !sp.getString("Date", "").equals(LocalDate.now().toString())) {
-                SharedPreferences.Editor editor = sp.edit();
-                editor.putBoolean("LoggedIn", false);
+            // If five hours have passed since user's last log in or the log in date is not the same as the current date
+            if(timeDifference >= 5 || !userPreferences.getString("Log_In_Date", "").equals(LocalDate.now().toString())) {
+                SharedPreferences.Editor editor = userPreferences.edit();
+                editor.putBoolean("Log_In_State", false);
+                editor.apply();
             } else {
-                Intent intent = new Intent(MainActivity.this, Dashboard.class);
-                startActivity(intent);
+                startActivity(new Intent(MainActivity.this, Dashboard.class));
                 finish();
             }
         }
 
 
         // When user clicks the login button
-        buttonLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, Login.class);
-                startActivity(intent);
-                finish();
-            }
+        buttonLogin.setOnClickListener(view -> {
+            startActivity(new Intent(MainActivity.this, Login.class));
+            finish();
         });
 
         // When user clicks the sign up button
-        buttonSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, SignUp.class);
-                startActivity(intent);
-                finish();
-            }
+        buttonSignUp.setOnClickListener(view -> {
+            startActivity(new Intent(MainActivity.this, SignUp.class));
+            finish();
         });
     }
+
 }
