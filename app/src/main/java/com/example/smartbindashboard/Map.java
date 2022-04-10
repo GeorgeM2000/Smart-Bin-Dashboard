@@ -1,7 +1,6 @@
 package com.example.smartbindashboard;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -13,18 +12,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.StrictMode;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -45,11 +38,9 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.mapboxsdk.style.sources.Source;
 import com.mapbox.mapboxsdk.utils.BitmapUtils;
 import com.mapbox.geojson.Point;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
@@ -62,8 +53,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 import retrofit2.Call;
@@ -491,7 +480,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
 
         for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
             if (Objects.requireNonNull(dataSnapshot.child("state").getValue()).toString().equals("1")) {
-                coordinates.add(new Double[]{Double.valueOf(Objects.requireNonNull(dataSnapshot.child("latitude").getValue()).toString()), Double.valueOf(dataSnapshot.child("longitude").getValue().toString())});
+                coordinates.add(new Double[]{Double.valueOf(Objects.requireNonNull(dataSnapshot.child("latitude").getValue()).toString()), Double.valueOf(Objects.requireNonNull(dataSnapshot.child("longitude").getValue()).toString())});
                 identifications.add(dataSnapshot.getKey());
             }
         }
