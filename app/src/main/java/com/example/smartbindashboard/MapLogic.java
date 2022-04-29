@@ -9,6 +9,7 @@ import com.mapbox.geojson.Point;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Response;
@@ -18,13 +19,15 @@ public class MapLogic {
 
     public static class RoutePath {
         private String name;
+        private String region;
         private List<Double> coordinates;
 
         public RoutePath(){}
 
-        public RoutePath(String name, List<Double> coordinates) {
+        public RoutePath(String name, List<Double> coordinates, String region) {
             this.name = name;
             this.coordinates = coordinates;
+            this.region = region;
         }
 
         public String getName() {
@@ -33,6 +36,10 @@ public class MapLogic {
 
         public List<Double> getCoordinates() {
             return coordinates;
+        }
+
+        public String getRegion() {
+            return region;
         }
     }
 
@@ -187,7 +194,7 @@ public class MapLogic {
     }
 
 
-    public ArrayList<RoutePath> optimalPath(ArrayList<Double[]> coordinates, ArrayList<String> identifications, String accessToken) throws IOException {
+    public ArrayList<RoutePath> optimalPath(ArrayList<Double[]> coordinates, ArrayList<String> identifications, String accessToken,  HashMap<String, String> rubbishBinNames) throws IOException {
         ArrayList<Double[]> graph = getDurationMatrix(coordinates, identifications, accessToken);
         if(graph == null){ return null; }
 
@@ -197,11 +204,9 @@ public class MapLogic {
 
 
         for(int i=0; i<coordinates.size()-1; i++) {
-            routePaths.add(new RoutePath(identifications.get(optimalPath.get(i)), Arrays.asList(coordinates.get(optimalPath.get(i)))));
+            routePaths.add(new RoutePath(identifications.get(optimalPath.get(i)), Arrays.asList(coordinates.get(optimalPath.get(i))), rubbishBinNames.get(identifications.get(optimalPath.get(i)))));
         }
-
         return routePaths;
-
     }
 
 

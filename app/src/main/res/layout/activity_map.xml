@@ -20,11 +20,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!--<fragment
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/googleMaps"
-                android:name="com.google.android.gms.maps.SupportMapFragment"/>-->
             <com.mapbox.mapboxsdk.maps.MapView xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
                 xmlns:mapbox="http://schemas.android.com/apk/res-auto"
@@ -56,17 +51,3 @@
 
 
 </androidx.drawerlayout.widget.DrawerLayout>
-
-
-
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".Map">
-
-</androidx.constraintlayout.widget.ConstraintLayout>-->

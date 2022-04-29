@@ -48,12 +48,16 @@ public class Dashboard extends AppCompatActivity {
             SharedPreferences userPreferences = getApplicationContext().getSharedPreferences("User_Preferences", Context.MODE_PRIVATE);
             SharedPreferences routePreferences = getApplicationContext().getSharedPreferences("Route_Preferences", Context.MODE_PRIVATE);
 
+            // Sign out
+            String userUid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
             FirebaseAuth.getInstance().signOut();
+
             if(!routePreferences.getString("Routes", "").equals("")) {
+                // Delete route data
                 FirebaseDatabase.getInstance().getReference("Routes")
-                        .child("Kastoria")
-                        .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                        .setValue(null)
+                        .child("Kozani")
+                        .child(userUid)
+                        .removeValue()
                         .addOnCompleteListener(task -> {
                             if(task.isSuccessful()) {
                                 Toast.makeText(this, "Route data deleted", Toast.LENGTH_LONG).show();
@@ -63,10 +67,14 @@ public class Dashboard extends AppCompatActivity {
                         });
             }
 
+
+
             SharedPreferences.Editor routeEditor = routePreferences.edit();
             SharedPreferences.Editor userEditor = userPreferences.edit();
 
+            // Delete shared preferences
             routeEditor.putString("Routes", "");
+            routeEditor.putString("Regions", "");
             routeEditor.putInt("Current_Route_Index", -1);
             routeEditor.putString("User_Location_Longitude", "");
             routeEditor.putString("User_Location_Latitude", "");
@@ -75,9 +83,6 @@ public class Dashboard extends AppCompatActivity {
             userEditor.putBoolean("Log_In_State", false);
             userEditor.apply();
             routeEditor.apply();
-
-
-
 
             startActivity(new Intent(Dashboard.this, MainActivity.class));
             finish();

@@ -1,6 +1,7 @@
 package com.example.smartbindashboard;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -18,11 +19,14 @@ import android.widget.Toast;
 
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
@@ -49,6 +53,7 @@ import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -99,17 +104,19 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
 
     // Rubbish bin variables
     GeoJsonSource rubbishBinGeoJsonSource;
-    String rubbishBinName;
+    String rubbishBinName, rubbishBinRegion;
     Point rubbishBinLocation;
 
 
     // Route variables
     private DirectionsRoute currentRoute;
     private SharedPreferences routePreferences;
+    private ArrayList<Login.Region> regions;
 
     // Update database variables
     boolean updatePermission;
-    private ValueEventListener devicesValueEventListener, routesValueEventListener;
+    private ValueEventListener routesValueEventListener;
+    private ChildEventListener devicesChildEventListener;
 
 
     @SuppressLint("MissingPermission")
@@ -118,7 +125,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token));
         setContentView(R.layout.activity_map);
-        mapView = (MapView) findViewById(R.id.mapView);
+        mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
 
 
@@ -136,11 +143,14 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
         linearLayoutOptimalPath = findViewById(R.id.optimal_path);
 
 
-        mapView = (MapView) findViewById(R.id.mapView);
+        mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
         databaseReference = FirebaseDatabase.getInstance().getReference();
-        routePreferences = getSharedPreferences("Route_Preferences", Context.MODE_PRIVATE);
+        routePreferences = getApplicationContext().getSharedPreferences("Route_Preferences", Context.MODE_PRIVATE);
+        regions = loadRegions();
+
+        // Listener for the routes location
         routesValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -157,22 +167,36 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
         };
 
 
-        devicesValueEventListener = new ValueEventListener() {
+        // Listener for the devices location
+        devicesChildEventListener = new ChildEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(updatePermission) {
-                    Thread thread = new Thread(() -> getOptimalPath(snapshot, Double.valueOf(routePreferences.getString("User_Location_Latitude", "")), Double.valueOf(routePreferences.getString("User_Location_Longitude", ""))));
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
 
-                    thread.start();
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                    if(updatePermission) {
+                        if(validateRegions(snapshot.getKey())) {
+                            Thread thread = new Thread(() -> setOptimalPath(Double.valueOf(routePreferences.getString("User_Location_Latitude", "")), Double.valueOf(routePreferences.getString("User_Location_Longitude", ""))));
 
-                    try {
-                        thread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                            thread.start();
+
+                            try {
+                                thread.join();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }else {
+                        updatePermission = true;
                     }
-                }
-                updatePermission = true;
+
             }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}
@@ -216,8 +240,8 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
         linearLayoutOptimalPath.setOnClickListener(view -> {
 
             if(routePreferences.getString("Routes", "").equals("")) {
-                if (myLocation.getLastKnownLocation() != null) {
-                    setOptimalPath(myLocation.getLastKnownLocation().getLatitude(), myLocation.getLastKnownLocation().getLongitude());
+                if (routePreferences.getBoolean("User_Location_Set", false)) {
+                    setOptimalPath(Double.valueOf(routePreferences.getString("User_Location_Latitude", "")), Double.valueOf(routePreferences.getString("User_Location_Longitude", "")));
                 } else {
                     Toast.makeText(getApplicationContext(), "Set location", Toast.LENGTH_SHORT).show();
                 }
@@ -229,8 +253,8 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
                 builder.setCancelable(false);
 
                 builder.setPositiveButton("Yes", (dialogInterface, i) -> {
-                    if (myLocation.getLastKnownLocation() != null) {
-                        setOptimalPath(myLocation.getLastKnownLocation().getLatitude(), myLocation.getLastKnownLocation().getLongitude());
+                    if (routePreferences.getBoolean("User_Location_Set", false)) {
+                        setOptimalPath(Double.valueOf(routePreferences.getString("User_Location_Latitude", "")), Double.valueOf(routePreferences.getString("User_Location_Longitude", "")));
                     } else {
                         Toast.makeText(getApplicationContext(), "Set location", Toast.LENGTH_SHORT).show();
                     }
@@ -363,19 +387,39 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     private void devicesListener() {
         databaseReference
                 .child("Devices")
-                .child("Kastoria")
-                .addValueEventListener(devicesValueEventListener);
-
+                .child("Kozani")
+                .addChildEventListener(devicesChildEventListener);
     }
+
+
+    // Load the regions from the shared preferences
+    private ArrayList<Login.Region> loadRegions() {
+        Gson gson = new Gson();
+
+        String json = routePreferences.getString("Regions", "");
+
+        Type type = new TypeToken<ArrayList<Login.Region>>() {}.getType();
+
+        return gson.fromJson(json, type);
+    }
+
+    // Validate regions
+    private boolean validateRegions(String childKey) {
+        for(Login.Region region: regions){
+            if(region.getName().equals(childKey)) return true;
+        }
+        return false;
+    }
+
 
     // Remove rubbish bin
     private void removeRubbishBin() {
         updatePermission = false;
-        databaseReference.child("Devices").child("Kastoria").child(rubbishBinName).updateChildren(new HashMap<String, Object>(){{put("state", "0");}});
+        databaseReference.child("Devices").child("Kozani").child(rubbishBinRegion).child(rubbishBinName).updateChildren(new HashMap<String, Object>(){{put("state", 0);}});
 
         databaseReference
                 .child("Routes")
-                .child("Kastoria")
+                .child("Kozani")
                 .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
                 .child(String.valueOf(routePreferences.getInt("Current_Route_Index", 0))).removeValue().addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
@@ -404,7 +448,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     private void saveRouteData(List<MapLogic.RoutePath> routePaths) {
        databaseReference
                 .child("Routes")
-                .child("Kastoria")
+                .child("Kozani")
                 .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
                 .setValue(routePaths)
                 .addOnCompleteListener(task -> {
@@ -439,13 +483,14 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     private void getRubbishBin() {
         databaseReference
                 .child("Routes")
-                .child("Kastoria")
+                .child("Kozani")
                 .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
                 .child(String.valueOf(routePreferences.getInt("Current_Route_Index", 0)))
                 .get()
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
                         rubbishBinName = Objects.requireNonNull(task.getResult().child("name").getValue()).toString();
+                        rubbishBinRegion = Objects.requireNonNull(task.getResult().child("region").getValue()).toString();
 
                         // Add rubbish bin source location and icon
                         rubbishBinGeoJsonSource = new GeoJsonSource("icon-source-id", FeatureCollection.fromFeatures(new Feature[] {
@@ -465,7 +510,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     private void routeListener() {
         databaseReference
                 .child("Routes")
-                .child("Kastoria")
+                .child("Kozani")
                 .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
                 .addValueEventListener(routesValueEventListener);
     }
@@ -474,27 +519,35 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     private void getOptimalPath(DataSnapshot snapshot, Double userLat, Double userLong) {
         ArrayList<Double[]> coordinates = new ArrayList<>();
         ArrayList<String> identifications = new ArrayList<>();
+        HashMap<String, String> rubbishBinNames = new HashMap<>();
         MapLogic mapLogic = new MapLogic();
+
         identifications.add("user");
         coordinates.add(new Double[]{userLat, userLong});
 
-        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-            if (Objects.requireNonNull(dataSnapshot.child("state").getValue()).toString().equals("1")) {
-                coordinates.add(new Double[]{Double.valueOf(Objects.requireNonNull(dataSnapshot.child("latitude").getValue()).toString()), Double.valueOf(Objects.requireNonNull(dataSnapshot.child("longitude").getValue()).toString())});
-                identifications.add(dataSnapshot.getKey());
+        for(Login.Region region: regions) {
+            for (DataSnapshot dataSnapshot: snapshot.child(region.getName()).getChildren()) {
+                if(Objects.requireNonNull(dataSnapshot.child("state").getValue()).toString().equals("1")) {
+                    coordinates.add(new Double[]{Double.valueOf(Objects.requireNonNull(dataSnapshot.child("latitude").getValue()).toString()), Double.valueOf(Objects.requireNonNull(dataSnapshot.child("longitude").getValue()).toString())});
+                    identifications.add(dataSnapshot.getKey());
+                    rubbishBinNames.put(dataSnapshot.getKey(), region.getName());
+                }
             }
         }
 
-
-        try {
-            List<MapLogic.RoutePath> routePaths = mapLogic.optimalPath(coordinates, identifications, getString(R.string.mapbox_access_token));
-            if (routePaths == null) {
-                Toast.makeText(getApplicationContext(), "Failed to retrieve route data", Toast.LENGTH_LONG).show();
-            } else {
-                saveRouteData(routePaths);
+        if(coordinates.size() >= 1) {
+            try {
+                List<MapLogic.RoutePath> routePaths = mapLogic.optimalPath(coordinates, identifications, getString(R.string.mapbox_access_token), rubbishBinNames);
+                if (routePaths == null) {
+                    Toast.makeText(getApplicationContext(), "Failed to retrieve route data", Toast.LENGTH_LONG).show();
+                } else {
+                    saveRouteData(routePaths);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } else {
+            Toast.makeText(this, "No rubbish bins available", Toast.LENGTH_LONG).show();
         }
 
     }
@@ -502,10 +555,9 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
 
     // Set optimal path
     public void setOptimalPath(Double userLat, Double userLong) {
-
         databaseReference
                 .child("Devices")
-                .child("Kastoria")
+                .child("Kozani")
                 .get()
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
@@ -561,6 +613,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
 
             myLocation = locationComponent;
 
+            // Store initial user location coordinates
             if(!routePreferences.getBoolean("User_Location_Set", false)) {
                 SharedPreferences.Editor editor = routePreferences.edit();
                 editor.putString("User_Location_Latitude", String.valueOf(Objects.requireNonNull(myLocation.getLastKnownLocation()).getLatitude()));
@@ -651,8 +704,8 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        databaseReference.child("Devices").child("Kastoria").removeEventListener(devicesValueEventListener);
-        databaseReference.child("Routes").child("Kastoria").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).removeEventListener(devicesValueEventListener);
+        databaseReference.child("Devices").child("Kozani").removeEventListener(devicesChildEventListener);
+        databaseReference.child("Routes").child("Kozani").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).removeEventListener(routesValueEventListener);
         mapView.onDestroy();
 
     }

@@ -14,15 +14,30 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.gson.Gson;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.Objects;
 
 public class Login extends AppCompatActivity {
 
     TextInputEditText textInputEditTextEmail, textInputEditTextPassword;
     ProgressBar progressBar;
     private FirebaseAuth mAuth;
+
+
+    public static class Region {
+        @SuppressWarnings("unused")
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+    }
 
 
     @Override
@@ -45,6 +60,40 @@ public class Login extends AppCompatActivity {
 
         // When user clicks the login button
         buttonLogin.setOnClickListener(view -> login());
+    }
+
+    // Save the regions to the shared preferences
+    private void saveRegions(List<Region> regions) {
+
+        SharedPreferences routePreferences = getApplicationContext().getSharedPreferences("Route_Preferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = routePreferences.edit();
+
+        Gson gson = new Gson();
+
+        String json = gson.toJson(regions);
+
+        editor.putString("Regions", json);
+        editor.apply();
+
+    }
+
+    // Get the regions from the database
+    private void getRegions() {
+        FirebaseDatabase.getInstance().getReference()
+                .child("Users")
+                .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                .child("regions")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        List<Region> regions;
+                        GenericTypeIndicator<List<Region>> t = new GenericTypeIndicator<List<Region>>() {};
+                        regions = task.getResult().getValue(t);
+
+                        // Save user regions to shared preferences
+                        saveRegions(regions);
+                    }
+                });
     }
 
 
@@ -77,6 +126,9 @@ public class Login extends AppCompatActivity {
                     editor.putString("Log_In_Time", currentTime);
                     editor.putString("Log_In_Date", currentDate);
                     editor.apply();
+
+                    // Get regions
+                    getRegions();
 
                     startActivity(new Intent(Login.this, Dashboard.class));
                     finish();
