@@ -76,7 +76,6 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     private NavigationMapRoute navigationMapRoute;
     private DatabaseReference databaseReference;
 
-
     ArrayList<String> navigationLayers = new ArrayList<String>() {
         {
             add("mapbox-navigation-arrow-shaft-casing-layer");
