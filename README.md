@@ -31,7 +31,7 @@
 
 <h2><b>Ενδεικτική Εκτέλεση Εφαρμογής</b></h2>
 <br>
-https://youfiles.herokuapp.com/15952f2b-7f18-491c-8780-65fcc0281592
+https://drive.google.com/file/d/1s6Z_FnqI7sg0LSpn9HlZQKC92GjBPlka/view?usp=sharing
 
 
 
