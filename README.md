@@ -31,7 +31,7 @@
 
 <h2><b>Ενδεικτική Εκτέλεση Εφαρμογής</b></h2>
 <br>
-Για να δείτε ένα ενδεικτικό βίντεο της εκτέλεσης της εφαρμογής πατήστε εδώ <a href="https://drive.google.com/file/d/1s6Z_FnqI7sg0LSpn9HlZQKC92GjBPlka/view?usp=sharing">Βίντεο</a>
+Για να δείτε ένα ενδεικτικό βίντεο της εκτέλεσης της εφαρμογής πατήστε <a href="https://drive.google.com/file/d/1s6Z_FnqI7sg0LSpn9HlZQKC92GjBPlka/view?usp=sharing">εδώ</a>
 
 
 
