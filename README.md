@@ -32,7 +32,7 @@
 <h2><b>Ενδεικτική Εκτέλεση Εφαρμογής</b></h2>
 <br>
 Για να δείτε ένα ενδεικτικό βίντεο της εκτέλεσης της εφαρμογής πατήστε <a href="https://drive.google.com/file/d/1s6Z_FnqI7sg0LSpn9HlZQKC92GjBPlka/view?usp=sharing">εδώ</a>
-
+Την παρουσίαση της εφαρμογής μπορείτε να τη βρείτε <a href="https://docs.google.com/presentation/d/1arZdm2npij3xdY_feV3NMuFBHRb06pYGw1QFPU3O7Nk/edit#slide=id.g11b7600d03a_0_2616">εδώ</a>
 
 
 
