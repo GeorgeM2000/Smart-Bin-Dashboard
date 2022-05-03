@@ -237,7 +237,6 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
 
         // Set optimal path field
         linearLayoutOptimalPath.setOnClickListener(view -> {
-
             if(routePreferences.getString("Routes", "").equals("")) {
                 if (routePreferences.getBoolean("User_Location_Set", false)) {
                     setOptimalPath(Double.valueOf(routePreferences.getString("User_Location_Latitude", "")), Double.valueOf(routePreferences.getString("User_Location_Longitude", "")));
@@ -270,9 +269,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
         // Rubbish bin field
         linearLayoutRubbishBin.setOnClickListener(view -> {
             if (myLocation != null) {
-
                 if (rubbishBinGeoJsonSource == null) {
-
                     if (routePreferences.getString("Routes", "").equals("true")) {
                         getRubbishBin();
                     } else {
@@ -295,55 +292,59 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
 
         // Clear point field
         linearLayoutClearPoint.setOnClickListener(view -> {
-
-            if (rubbishBinGeoJsonSource != null) {
-
-                if(routePreferences.getString("Routes", "").equals("true")) {
+            if(routePreferences.getString("Routes", "").equals("true")) {
+                if (rubbishBinGeoJsonSource != null) {
                     removeRubbishBin();
                 } else {
-                    Toast.makeText(this, "No rubbish bin available", Toast.LENGTH_LONG).show();
+                    Toast.makeText(Map.this, "No rubbish bin selected", Toast.LENGTH_LONG).show();
                 }
-
             } else {
-                Toast.makeText(Map.this, "No rubbish bin selected", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "No rubbish bin available", Toast.LENGTH_LONG).show();
             }
+
         });
 
 
         // Route field
         linearLayoutRoute.setOnClickListener(view -> {
+            if (myLocation != null) {
+                if(rubbishBinLocation != null) {
+                    if (currentRoute == null) {
+                        getRoute();
+                    } else {
+                        // Remove route from map
+                        navigationMapRoute.updateRouteArrowVisibilityTo(false);
+                        navigationMapRoute.updateRouteVisibilityTo(false);
+                        removeLayers();
+                        removeSources();
+                        navigationMapRoute = null;
+                        currentRoute = null;
 
-            if (myLocation != null || rubbishBinLocation != null) {
-                if (currentRoute == null) {
-                    getRoute();
+                        Toast.makeText(Map.this, "Route disabled", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    // Remove route from map
-                    navigationMapRoute.updateRouteArrowVisibilityTo(false);
-                    navigationMapRoute.updateRouteVisibilityTo(false);
-                    removeLayers();
-                    removeSources();
-                    navigationMapRoute = null;
-                    currentRoute = null;
-
-                    Toast.makeText(Map.this, "Route disabled", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Map.this, "Rubbish bin location is not set", Toast.LENGTH_LONG).show();
                 }
-
             } else {
-                Toast.makeText(Map.this, "Source or destination are not set", Toast.LENGTH_LONG).show();
+                Toast.makeText(Map.this, "User location is not set", Toast.LENGTH_LONG).show();
             }
         });
 
         // Navigation field
         linearLayoutNavigation.setOnClickListener(view -> {
-            // Start navigation
-            NavigationLauncherOptions options = NavigationLauncherOptions.builder()
-                    .directionsRoute(currentRoute)
-                    .waynameChipEnabled(true)
-                    .shouldSimulateRoute(true)
-                    .build();
+            if(currentRoute != null) {
+                // Start navigation
+                NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                        .directionsRoute(currentRoute)
+                        .waynameChipEnabled(true)
+                        .shouldSimulateRoute(true)
+                        .build();
 
-            NavigationLauncher.startNavigation(Map.this, options);
-            linearLayoutNavigation.setEnabled(true);
+                NavigationLauncher.startNavigation(Map.this, options);
+                linearLayoutNavigation.setEnabled(true);
+            } else {
+                Toast.makeText(this, "Route is not set", Toast.LENGTH_LONG).show();
+            }
         });
 
         // Back field
