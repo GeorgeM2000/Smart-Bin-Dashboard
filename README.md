@@ -35,5 +35,8 @@
 <p>Την παρουσίαση της εφαρμογής μπορείτε να τη βρείτε <a href="https://docs.google.com/presentation/d/1arZdm2npij3xdY_feV3NMuFBHRb06pYGw1QFPU3O7Nk/edit#slide=id.g11b7600d03a_0_2616">εδώ</a></p>
 <p>Όταν κατεβάσετε το APK της εφαρμογής να γνωρίζετε πως θα πρέπει να συνδεθείτε με τον λογαριασμό <b>testuser@gmail.com</b> και κωδικό <b>tu12345</b>. Αυτό πρέπει να το κάνετε για να λειτουργήσει σωστά η εφαρμογή διότι σε αυτόν τον λογαριασμό έχουν αποδοθεί περιοχές στη Κοζάνη που βρίσκονται κάδοι απορριμάτων. Για την σωστή εκτέλεση της εφαρμογής δείτε το 03 κομμάτι της <a href="https://docs.google.com/presentation/d/1arZdm2npij3xdY_feV3NMuFBHRb06pYGw1QFPU3O7Nk/edit#slide=id.g11b7600d03a_0_2616">παρουσίασης</a> μου όπως και το ενδεικτικό <a href="https://drive.google.com/file/d/1s6Z_FnqI7sg0LSpn9HlZQKC92GjBPlka/view?usp=sharing">βίντεο</a>. Το APK μπορείτε να το κατεβάσετε <a href="https://docs.google.com/presentation/d/1arZdm2npij3xdY_feV3NMuFBHRb06pYGw1QFPU3O7Nk/edit#slide=id.g11b7600d03a_0_2616">εδώ</a></p>
 
+<h2><b>Επιπλέον Σχόλιά</b></h2>
+<br>
+<p>Στο Dashboard activity της εφαρμογής μόνο το Map πεδίο είναι λειτουργικό καθώς η λογική της εφαρμογής υλοποιείται εκεί.</p>
 
 
