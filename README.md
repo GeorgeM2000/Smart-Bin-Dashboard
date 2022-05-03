@@ -33,11 +33,7 @@
 <br>
 <p>Για να δείτε ένα ενδεικτικό βίντεο της εκτέλεσης της εφαρμογής πατήστε <a href="https://drive.google.com/file/d/1s6Z_FnqI7sg0LSpn9HlZQKC92GjBPlka/view?usp=sharing">εδώ</a></p>
 <p>Την παρουσίαση της εφαρμογής μπορείτε να τη βρείτε <a href="https://docs.google.com/presentation/d/1arZdm2npij3xdY_feV3NMuFBHRb06pYGw1QFPU3O7Nk/edit#slide=id.g11b7600d03a_0_2616">εδώ</a></p>
+<p>Όταν κατεβάσετε το APK της εφαρμογής να γνωρίζετε πως θα πρέπει να συνδεθείτε με τον λογαριασμό testuser@gmail.com και κωδικό tu12345. Αυτό πρέπει να το κάνετε για να λειτουργήσει σωστά η εφαρμογή διότι σε αυτόν τον λογαριασμό έχουν αποδοθεί περιοχές στη Κοζάνη που βρίσκονται κάδοι απορριμάτων. Για την σωστή εκτέλεση της εφαρμογής δείτε το 03 κομμάτι της <a href="https://docs.google.com/presentation/d/1arZdm2npij3xdY_feV3NMuFBHRb06pYGw1QFPU3O7Nk/edit#slide=id.g11b7600d03a_0_2616">παρουσίασης</a> μου όπως και το ενδεικτικό <a href="https://drive.google.com/file/d/1s6Z_FnqI7sg0LSpn9HlZQKC92GjBPlka/view?usp=sharing">βίντεο</a>. Το APK μπορείτε να το κατεβάσετε <a href="<a href="https://docs.google.com/presentation/d/1arZdm2npij3xdY_feV3NMuFBHRb06pYGw1QFPU3O7Nk/edit#slide=id.g11b7600d03a_0_2616">εδώ</a></p>">εδώ</a></p>
 
-
-
-<h3 align="center"><b>Περιγραφή</b></h3>
-<br>
-<p align="center"></p>
 
 
