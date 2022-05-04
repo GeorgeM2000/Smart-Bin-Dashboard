@@ -13,6 +13,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -535,11 +537,11 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
             }
         }
 
-        if(coordinates.size() >= 1) {
+        if(coordinates.size() > 1) {
             try {
                 List<MapLogic.RoutePath> routePaths = mapLogic.optimalPath(coordinates, identifications, getString(R.string.mapbox_access_token), rubbishBinNames);
                 if (routePaths == null) {
-                    Toast.makeText(getApplicationContext(), "Failed to retrieve route data", Toast.LENGTH_LONG).show();
+                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), "Failed to retrieve route data", Toast.LENGTH_LONG).show());
                 } else {
                     saveRouteData(routePaths);
                 }
@@ -547,7 +549,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
                 e.printStackTrace();
             }
         } else {
-            Toast.makeText(this, "No rubbish bins available", Toast.LENGTH_LONG).show();
+            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), "No rubbish bins available", Toast.LENGTH_LONG).show());
         }
 
     }
