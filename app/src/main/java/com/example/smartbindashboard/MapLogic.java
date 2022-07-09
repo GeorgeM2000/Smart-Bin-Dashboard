@@ -161,7 +161,7 @@ public class MapLogic {
 
     private ArrayList<Integer> TTP(ArrayList<Double[]> graph, int V) {
         ArrayList<Integer> vertex = new ArrayList<>();
-        for(int i=0; i<V; i++) {
+        for(int i=0; i<V-1; i++) {
             if(i != 0) {
                 vertex.add(i);
             }
@@ -169,11 +169,11 @@ public class MapLogic {
 
         ArrayList<Integer> routePath = new ArrayList<>();
         double minPath = 1000000000.0;
-        ArrayList<Integer[]> nextPermutations = permutations(vertex);
+        ArrayList<Integer[]> nextPermutations = permutations(vertex);   // List of all possible paths
 
         for(Integer[] permutation: nextPermutations) {
-            double currentPathweight = 0.0;
-            ArrayList<Integer> currentPath = new ArrayList<>();
+            double currentPathweight = 0.0; // The weight of the current path
+            ArrayList<Integer> currentPath = new ArrayList<>(); // The indexes of the path
 
             int k = 0;
             for(Integer element: permutation) {
@@ -182,7 +182,7 @@ public class MapLogic {
                 k = element;
             }
 
-            currentPathweight += graph.get(k)[0];
+            currentPathweight += graph.get(k)[V-1];
 
             if(currentPathweight < minPath) {
                 minPath = currentPathweight;
@@ -194,14 +194,18 @@ public class MapLogic {
     }
 
 
-    public ArrayList<RoutePath> optimalPath(ArrayList<Double[]> coordinates, ArrayList<String> identifications, String accessToken,  HashMap<String, String> rubbishBinNames) throws IOException {
+    public ArrayList<RoutePath> optimalPath(ArrayList<Double[]> coordinates, ArrayList<String> identifications, String accessToken,  HashMap<String, String> rubbishBinNames, String rubbishBinName, String rubbishBinRegion, Point rubbishBinLocation) throws IOException {
         ArrayList<Double[]> graph = getDurationMatrix(coordinates, identifications, accessToken);
         if(graph == null){ return null; }
-
 
         ArrayList<RoutePath> routePaths = new ArrayList<>();
         ArrayList<Integer> optimalPath = TTP(graph, coordinates.size());
 
+        // If a rubbish bin has been selected
+        if(rubbishBinName != null) {
+            // Add it's info to the 'routePaths' before any of the other rubbish bins
+            routePaths.add(new RoutePath(rubbishBinName, Arrays.asList(rubbishBinLocation.latitude(), rubbishBinLocation.longitude()), rubbishBinRegion));
+        }
 
         for(int i=0; i<coordinates.size()-1; i++) {
             routePaths.add(new RoutePath(identifications.get(optimalPath.get(i)), Arrays.asList(coordinates.get(optimalPath.get(i))), rubbishBinNames.get(identifications.get(optimalPath.get(i)))));

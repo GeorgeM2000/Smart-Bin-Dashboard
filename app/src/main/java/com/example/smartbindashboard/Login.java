@@ -77,6 +77,18 @@ public class Login extends AppCompatActivity {
 
     }
 
+    // Save the Base coordinates to the shared preferences
+    private void saveBase(String[] baseCoord) {
+        SharedPreferences routePreferences = getApplicationContext().getSharedPreferences("Route_Preferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = routePreferences.edit();
+
+        editor.putString("Base_Location_Latitude", baseCoord[0]);
+        editor.putString("Base_Location_Longitude", baseCoord[1]);
+        editor.putBoolean("Base_Location_Set", true);
+        editor.apply();
+
+    }
+
     // Get the regions from the database
     private void getRegions() {
         FirebaseDatabase.getInstance().getReference()
@@ -92,6 +104,26 @@ public class Login extends AppCompatActivity {
 
                         // Save user regions to shared preferences
                         saveRegions(regions);
+                    } else {
+                        Toast.makeText(this, "Failed to acquire the regions.", Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    // Get the base coordinates
+    private void getBase() {
+        FirebaseDatabase.getInstance().getReference()
+                .child("Users")
+                .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                .child("base")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        String[] baseCoordinates = new String[]{Objects.requireNonNull(task.getResult().child("latitude").getValue()).toString(), Objects.requireNonNull(task.getResult().child("longitude").getValue()).toString()};
+
+                        saveBase(baseCoordinates);
+                    } else {
+                        Toast.makeText(this, "Failed to acquire the location of the base.", Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -129,6 +161,9 @@ public class Login extends AppCompatActivity {
 
                     // Get regions
                     getRegions();
+
+                    // Get Base location
+                    getBase();
 
                     startActivity(new Intent(Login.this, Dashboard.class));
                     finish();

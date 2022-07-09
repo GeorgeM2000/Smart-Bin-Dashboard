@@ -155,6 +155,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
         routesValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // If there arent any route entries
                 if(!snapshot.hasChildren()) {
                     SharedPreferences.Editor editor = routePreferences.edit();
                     editor.putString("Routes", "");
@@ -176,8 +177,9 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                     if(updatePermission) {
+                        // Check if the region in which a change occurred in the DB is in the list of allowed regions for the user
                         if(validateRegions(snapshot.getKey())) {
-                            Thread thread = new Thread(() -> setOptimalPath(Double.valueOf(routePreferences.getString("User_Location_Latitude", "")), Double.valueOf(routePreferences.getString("User_Location_Longitude", ""))));
+                            Thread thread = new Thread(() -> setOptimalPath(Objects.requireNonNull(myLocation.getLastKnownLocation()).getLatitude(), myLocation.getLastKnownLocation().getLatitude()));
 
                             thread.start();
 
@@ -239,12 +241,20 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
 
         // Set optimal path field
         linearLayoutOptimalPath.setOnClickListener(view -> {
+            // If there aren't any routes
             if(routePreferences.getString("Routes", "").equals("")) {
-                if (routePreferences.getBoolean("User_Location_Set", false)) {
-                    setOptimalPath(Double.valueOf(routePreferences.getString("User_Location_Latitude", "")), Double.valueOf(routePreferences.getString("User_Location_Longitude", "")));
+                // If the location of the base is set
+                if(routePreferences.getBoolean("Base_Location_Set", false)) {
+                    // If the user location has been set
+                    if (myLocation != null) {
+                        setOptimalPath(Objects.requireNonNull(myLocation.getLastKnownLocation()).getLatitude(), myLocation.getLastKnownLocation().getLongitude());
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Set location", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(getApplicationContext(), "Set location", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Base location is not set.", Toast.LENGTH_LONG).show();
                 }
+
             } else {
                 // Let user decide if new route data should be acquired
                 AlertDialog.Builder builder = new AlertDialog.Builder(Map.this);
@@ -253,10 +263,10 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
                 builder.setCancelable(false);
 
                 builder.setPositiveButton("Yes", (dialogInterface, i) -> {
-                    if (routePreferences.getBoolean("User_Location_Set", false)) {
+                    if(myLocation != null) {
                         setOptimalPath(Double.valueOf(routePreferences.getString("User_Location_Latitude", "")), Double.valueOf(routePreferences.getString("User_Location_Longitude", "")));
                     } else {
-                        Toast.makeText(getApplicationContext(), "Set location", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Set Location.", Toast.LENGTH_SHORT).show();
                     }
                     dialogInterface.cancel();
                 });
@@ -272,8 +282,9 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
         linearLayoutRubbishBin.setOnClickListener(view -> {
             if (myLocation != null) {
                 if (rubbishBinGeoJsonSource == null) {
+                    // If there are routes
                     if (routePreferences.getString("Routes", "").equals("true")) {
-                        getRubbishBin();
+                        getRubbishBin();    // Get the rubbish bin
                     } else {
                         Toast.makeText(Map.this, "No rubbish bin available", Toast.LENGTH_LONG).show();
                     }
@@ -294,9 +305,11 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
 
         // Clear point field
         linearLayoutClearPoint.setOnClickListener(view -> {
+            // If there are routes
             if(routePreferences.getString("Routes", "").equals("true")) {
+                // If a location marker has been set for a rubbish bin
                 if (rubbishBinGeoJsonSource != null) {
-                    removeRubbishBin();
+                    removeRubbishBin(); // Remove the rubbish bin from the map and from the database
                 } else {
                     Toast.makeText(Map.this, "No rubbish bin selected", Toast.LENGTH_LONG).show();
                 }
@@ -309,10 +322,13 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
 
         // Route field
         linearLayoutRoute.setOnClickListener(view -> {
+            // If the user location is set
             if (myLocation != null) {
+                // If the rubbish bin location is set
                 if(rubbishBinLocation != null) {
+                    // If there is no current route
                     if (currentRoute == null) {
-                        getRoute();
+                        getRoute(); // Get the current route
                     } else {
                         // Remove route from map
                         navigationMapRoute.updateRouteArrowVisibilityTo(false);
@@ -357,7 +373,9 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
             builder.setTitle("Warning !");
             builder.setCancelable(false);
 
+            // In case the user chooses the 'yes' option
             builder.setPositiveButton("Yes", (dialogInterface, i) -> {
+                // Go back to the Dashboard
                 Intent intent = new Intent(Map.this, Dashboard.class);
                 startActivity(intent);
                 finish();
@@ -369,7 +387,6 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
             alertDialog.show();
         });
     }
-
 
     // Remove the route layers from map
     private void removeLayers() {
@@ -386,11 +403,22 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     }
 
 
+
+    // Listener method to check if a change happens in the 'Devices' section of the database
     private void devicesListener() {
         databaseReference
                 .child("Devices")
-                .child("Kozani")
+                .child("Kastoria")
                 .addChildEventListener(devicesChildEventListener);
+    }
+
+    // Route listener
+    private void routeListener() {
+        databaseReference
+                .child("Routes")
+                .child("Kastoria")
+                .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                .addValueEventListener(routesValueEventListener);
     }
 
 
@@ -405,7 +433,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
         return gson.fromJson(json, type);
     }
 
-    // Validate regions
+    // Validate the region in which a change occurred in the DB
     private boolean validateRegions(String childKey) {
         for(Login.Region region: regions){
             if(region.getName().equals(childKey)) return true;
@@ -416,12 +444,13 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
 
     // Remove rubbish bin
     private void removeRubbishBin() {
+        // Set the update permission variable to false because when a rubbish bin is removed from the database we don't want to recalculate the optimal path
         updatePermission = false;
-        databaseReference.child("Devices").child("Kozani").child(rubbishBinRegion).child(rubbishBinName).updateChildren(new HashMap<String, Object>(){{put("state", 0);}});
+        databaseReference.child("Devices").child("Kastoria").child(rubbishBinRegion).child(rubbishBinName).updateChildren(new HashMap<String, Object>(){{put("state", 0);}});
 
         databaseReference
                 .child("Routes")
-                .child("Kozani")
+                .child("Kastoria")
                 .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
                 .child(String.valueOf(routePreferences.getInt("Current_Route_Index", 0))).removeValue().addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
@@ -450,7 +479,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     private void saveRouteData(List<MapLogic.RoutePath> routePaths) {
        databaseReference
                 .child("Routes")
-                .child("Kozani")
+                .child("Kastoria")
                 .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
                 .setValue(routePaths)
                 .addOnCompleteListener(task -> {
@@ -485,7 +514,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     private void getRubbishBin() {
         databaseReference
                 .child("Routes")
-                .child("Kozani")
+                .child("Kastoria")
                 .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
                 .child(String.valueOf(routePreferences.getInt("Current_Route_Index", 0)))
                 .get()
@@ -508,41 +537,57 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     }
 
 
-    // Route listener
-    private void routeListener() {
-        databaseReference
-                .child("Routes")
-                .child("Kozani")
-                .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                .addValueEventListener(routesValueEventListener);
-    }
-
-
+    // Get optimal path
     private void getOptimalPath(DataSnapshot snapshot, Double userLat, Double userLong) {
+        // Create a coordinates list to store the coordinates of a node
         ArrayList<Double[]> coordinates = new ArrayList<>();
+        // Create an identifications list to store the name of a node
         ArrayList<String> identifications = new ArrayList<>();
+        // Create a hashmap to store the region names
         HashMap<String, String> rubbishBinNames = new HashMap<>();
+        // Create MapLogic object
         MapLogic mapLogic = new MapLogic();
 
+        // Add the user coordinates
         identifications.add("user");
         coordinates.add(new Double[]{userLat, userLong});
 
         for(Login.Region region: regions) {
             for (DataSnapshot dataSnapshot: snapshot.child(region.getName()).getChildren()) {
                 if(Objects.requireNonNull(dataSnapshot.child("state").getValue()).toString().equals("1")) {
-                    coordinates.add(new Double[]{Double.valueOf(Objects.requireNonNull(dataSnapshot.child("latitude").getValue()).toString()), Double.valueOf(Objects.requireNonNull(dataSnapshot.child("longitude").getValue()).toString())});
-                    identifications.add(dataSnapshot.getKey());
-                    rubbishBinNames.put(dataSnapshot.getKey(), region.getName());
+
+                    // If a rubbish bin has been selected and it's location is set on the map
+                    if(rubbishBinName != null) {
+                        // If the rubbish bin name that we get from the DB is not equal to the name of the rubbish bin that has been selected
+                        if(!Objects.equals(dataSnapshot.getKey(), rubbishBinName)) {
+                            // Store rubbish bin info
+                            coordinates.add(new Double[]{Double.valueOf(Objects.requireNonNull(dataSnapshot.child("latitude").getValue()).toString()), Double.valueOf(Objects.requireNonNull(dataSnapshot.child("longitude").getValue()).toString())});
+                            identifications.add(dataSnapshot.getKey());
+                            rubbishBinNames.put(dataSnapshot.getKey(), region.getName());
+                        }
+                    } else {
+                        // Store rubbish bin info
+                        coordinates.add(new Double[]{Double.valueOf(Objects.requireNonNull(dataSnapshot.child("latitude").getValue()).toString()), Double.valueOf(Objects.requireNonNull(dataSnapshot.child("longitude").getValue()).toString())});
+                        identifications.add(dataSnapshot.getKey());
+                        rubbishBinNames.put(dataSnapshot.getKey(), region.getName());
+                    }
                 }
             }
         }
 
-        if(coordinates.size() > 1) {
+        // Add the user coordinates
+        identifications.add("base");
+        coordinates.add(new Double[]{Double.valueOf(routePreferences.getString("Base_Location_Latitude", "")), Double.valueOf(routePreferences.getString("Base_Location_Longitude", ""))});
+
+        // If there are rubbish bins available
+        if(coordinates.size() > 2) {
             try {
-                List<MapLogic.RoutePath> routePaths = mapLogic.optimalPath(coordinates, identifications, getString(R.string.mapbox_access_token), rubbishBinNames);
+                // Get the optimal path
+                List<MapLogic.RoutePath> routePaths = mapLogic.optimalPath(coordinates, identifications, getString(R.string.mapbox_access_token), rubbishBinNames, rubbishBinName, rubbishBinRegion, rubbishBinLocation);
                 if (routePaths == null) {
                     new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), "Failed to retrieve route data", Toast.LENGTH_LONG).show());
                 } else {
+                    // Save the optimal path
                     saveRouteData(routePaths);
                 }
             } catch (IOException e) {
@@ -559,7 +604,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     public void setOptimalPath(Double userLat, Double userLong) {
         databaseReference
                 .child("Devices")
-                .child("Kozani")
+                .child("Kastoria")
                 .get()
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
@@ -614,15 +659,6 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
 
 
             myLocation = locationComponent;
-
-            // Store initial user location coordinates
-            if(!routePreferences.getBoolean("User_Location_Set", false)) {
-                SharedPreferences.Editor editor = routePreferences.edit();
-                editor.putString("User_Location_Latitude", String.valueOf(Objects.requireNonNull(myLocation.getLastKnownLocation()).getLatitude()));
-                editor.putString("User_Location_Longitude", String.valueOf(myLocation.getLastKnownLocation().getLongitude()));
-                editor.putBoolean("User_Location_Set", true);
-                editor.apply();
-            }
 
             Toast.makeText(this, "User location enabled", Toast.LENGTH_LONG).show();
         } else {
@@ -706,8 +742,8 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Permis
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        databaseReference.child("Devices").child("Kozani").removeEventListener(devicesChildEventListener);
-        databaseReference.child("Routes").child("Kozani").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).removeEventListener(routesValueEventListener);
+        databaseReference.child("Devices").child("Kastoria").removeEventListener(devicesChildEventListener);
+        databaseReference.child("Routes").child("Kastoria").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).removeEventListener(routesValueEventListener);
         mapView.onDestroy();
 
     }

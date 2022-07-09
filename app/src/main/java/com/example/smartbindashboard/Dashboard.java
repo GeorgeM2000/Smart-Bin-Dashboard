@@ -48,14 +48,16 @@ public class Dashboard extends AppCompatActivity {
             SharedPreferences userPreferences = getApplicationContext().getSharedPreferences("User_Preferences", Context.MODE_PRIVATE);
             SharedPreferences routePreferences = getApplicationContext().getSharedPreferences("Route_Preferences", Context.MODE_PRIVATE);
 
-            // Sign out
+            // Get the User ID(UID)
             String userUid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+            // Sign out
             FirebaseAuth.getInstance().signOut();
 
+            // If there is route data stored in shared preferences
             if(!routePreferences.getString("Routes", "").equals("")) {
                 // Delete route data
                 FirebaseDatabase.getInstance().getReference("Routes")
-                        .child("Kozani")
+                        .child("Kastoria")
                         .child(userUid)
                         .removeValue()
                         .addOnCompleteListener(task -> {
@@ -72,13 +74,13 @@ public class Dashboard extends AppCompatActivity {
             SharedPreferences.Editor routeEditor = routePreferences.edit();
             SharedPreferences.Editor userEditor = userPreferences.edit();
 
-            // Delete shared preferences
+            // Delete shared preferences values
             routeEditor.putString("Routes", "");
             routeEditor.putString("Regions", "");
             routeEditor.putInt("Current_Route_Index", -1);
-            routeEditor.putString("User_Location_Longitude", "");
-            routeEditor.putString("User_Location_Latitude", "");
-            routeEditor.putBoolean("User_Location_Set", false);
+            routeEditor.putString("Base_Location_Longitude", "");
+            routeEditor.putString("Base_Location_Latitude", "");
+            routeEditor.putBoolean("Base_Location_Set", false);
 
             userEditor.putBoolean("Log_In_State", false);
             userEditor.apply();
